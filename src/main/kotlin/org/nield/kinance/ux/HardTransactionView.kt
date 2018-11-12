@@ -2,8 +2,6 @@ package org.nield.kinance.ux
 
 import io.reactivex.subjects.BehaviorSubject
 import javafx.collections.FXCollections
-import org.nield.kinance.entity.Account
-import org.nield.kinance.entity.Category
 import org.nield.kinance.entity.HardTransaction
 import tornadofx.*
 

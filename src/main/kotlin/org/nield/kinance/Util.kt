@@ -1,12 +1,10 @@
 
 import io.reactivex.Flowable
 import io.reactivex.Observable
-import io.reactivex.Single
 import javafx.scene.layout.BorderPane
 import javafx.scene.paint.Color
 import javafx.scene.text.FontWeight
-import tornadofx.label
-import tornadofx.style
+import tornadofx.*
 import java.awt.Toolkit
 import java.awt.datatransfer.DataFlavor
 import java.math.BigDecimal

@@ -2,8 +2,6 @@ package org.nield.kinance.entity
 
 import db
 import getLocalDate
-import io.reactivex.rxkotlin.Singles
-import javafx.collections.FXCollections
 import org.nield.rxkotlinjdbc.select
 import java.math.BigDecimal
 import java.sql.ResultSet

@@ -1,19 +1,12 @@
 package org.nield.kinance.entity
 
-import com.github.thomasnield.rxkotlinfx.toBinding
 import db
 import discretizeWords
 import io.reactivex.Single
-import io.reactivex.rxkotlin.toObservable
 import javafx.beans.property.SimpleObjectProperty
-import javafx.collections.FXCollections
-import org.apache.commons.csv.CSVFormat
-import org.apache.commons.csv.CSVParser
 import org.nield.kinance.prediction.PredictorModel
 import org.nield.rxkotlinjdbc.insert
-import toCurrency
 import tornadofx.*
-import java.io.FileReader
 import java.math.BigDecimal
 import java.math.RoundingMode
 import java.time.LocalDate
