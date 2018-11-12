@@ -3,6 +3,7 @@ package org.nield.kinance.entity
 import db
 import getLocalDate
 import io.reactivex.rxkotlin.Singles
+import javafx.collections.FXCollections
 import org.nield.rxkotlinjdbc.select
 import java.math.BigDecimal
 import java.sql.ResultSet
@@ -15,51 +16,37 @@ data class HardTransaction(
         val transactionDate: LocalDate,
         val amount: BigDecimal,
         val memo: String,
-        val taxStatus: TaxStatus,
-        val category: Category,
-        val account: Account
+        val taxStatus: TaxStatus
 ) {
 
-    constructor(rs: ResultSet, category: Category, account: Account): this(
+    constructor(rs: ResultSet): this(
             rs.getInt("ID"),
             rs.getInt("CATEGORY_ID"),
             rs.getInt("ACCOUNT_ID"),
             rs.getLocalDate("TRANSACTION_DATE"),
             rs.getBigDecimal("AMOUNT"),
             rs.getString("MEMO"),
-            rs.getInt("TAX_STATUS").let { TaxStatus.forCode(it) },
-            category,
-            account
+            rs.getInt("TAX_STATUS").let { TaxStatus.forCode(it) }
     )
+
+    val category = Category.forId(categoryId)
+
+    val account = Account.forId(accountId)
 
     companion object {
 
-        val all = Singles.zip(Category.allAsMap, Account.allAsMap) { categories, accounts ->
-            db.select("SELECT * FROM HARD_TRANSACTION")
-                    .toObservable {
-                        val categoryId = it.getInt("CATEGORY_ID")
-                        val accountId = it.getInt("ACCOUNT_ID")
-                        HardTransaction(it, categories[categoryId]!!, accounts[accountId]!!)
-                    }
-        }.flatMapObservable { it }
+        val all
+            get() = db.select("SELECT * FROM HARD_TRANSACTION")
+                    .toSequence(::HardTransaction)
+                    .toList()
 
         fun of(categoryId: Int? = null,
                effFrom: LocalDate? = null,
                effTo: LocalDate? = null
-        ) = StringBuilder().apply {
-            if (sequenceOf(categoryId, effFrom, effTo).any { it != null }) append(" WHERE 1 == 1 ")
-            if (categoryId != null) append("AND ID = ? ")
-            if (effFrom != null) append("AND TRANSACTION_DATE >= ? ")
-            if (effTo != null) append("AND TRANSACTION_DATE <= ?")
-        }.toString()
-        .let { where ->
-            db.select("SELECT * FROM HARD_TRANSACTION $where")
-                    .apply {
-                        sequenceOf(categoryId, effFrom, effTo).filterNotNull().forEach { parameter(it) }
-            }
-        }.let {
-             HardTransaction(it, Category.forId(categoryId), Account.forId(it.getInt("ACCOUNT_ID")!!)
-        }
+        ) = db.select("SELECT * FROM HARD_TRANSACTION")
+                .whereIfProvided("CATEGORY_ID", categoryId)
+                .whereIfProvided("EFF_FROM", effFrom)
+                .whereIfProvided("EFF_TO", effTo)
     }
 }
 

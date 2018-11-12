@@ -32,9 +32,10 @@ class StagedTransaction(
 
     val accountProperty = SimpleObjectProperty(account)
     var account by accountProperty
-    val predictedCategoryAndConfidence = PredictorModel.categoryPredictor.map { it.predictWithProbability(description.discretizeWords()) }.toBinding()
 
-    val predictedCategory get() = predictedCategoryAndConfidence.value?.let { "${it.category}: ${BigDecimal.valueOf(it.probability).setScale(2, RoundingMode.HALF_UP)}" }
+    val predictedCategoryAndConfidence = PredictorModel.categoryPredictor.predictWithProbability(description.discretizeWords())
+
+    val predictedCategory get() = predictedCategoryAndConfidence?.let { "${it.category}: ${BigDecimal.valueOf(it.probability).setScale(2, RoundingMode.HALF_UP)}" }
 
     val taxStatusProperty = SimpleObjectProperty<TaxStatus?>(TaxStatus.NONE)
     var taxStatus by taxStatusProperty

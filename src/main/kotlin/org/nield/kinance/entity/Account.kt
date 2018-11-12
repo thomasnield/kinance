@@ -24,6 +24,11 @@ enum class Account(
     )
     private class Record(val id: Int, val name: String, val number: String, val accountType: AccountType)
 
+    companion object {
+
+        fun forId(accountId: Int) = Account.values().first { it.id == accountId }
+    }
+
 }
 
 enum class AccountType {
