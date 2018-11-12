@@ -27,18 +27,12 @@ class Category(
     companion object {
 
         val all = db.select("SELECT * FROM CATEGORY")
-                .toObservable(::Category)
+                .toSequence(::Category)
                 .toList()
-                .switchReplaySingle()
-                .flatMapObservable { it.toObservable() }
 
-        val allAsMap get() = all
-                .map { it.id to it }
-                .toMap()
-                .switchReplaySingle()
+        val allAsMap = all.asSequence().map { it.id to it }.toMap()
 
-
-        fun forId(id: Int) = allAsMap.map { it[id]!! }
+        fun forId(id: Int) = allAsMap[id]!!
     }
 
     override fun toString() = name

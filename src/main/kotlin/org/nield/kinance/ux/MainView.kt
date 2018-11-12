@@ -11,7 +11,7 @@ class MainView: View() {
         tabClosingPolicy = TabPane.TabClosingPolicy.UNAVAILABLE
 
         tab(HardTransactionView::class)
-        tab(TransactionImportView::class)
+        tab(StagedTransactionView::class)
         tab(AccountView::class)
         tab(CategoryView::class)
     }

@@ -24,12 +24,14 @@ class StagedTransaction(
         val transactionDate: LocalDate,
         val amount: BigDecimal,
         val description: String,
-        val account: Account
+        account: Account
 ) {
 
     val categoryProperty = SimpleObjectProperty<Category?>()
     var category by categoryProperty
 
+    val accountProperty = SimpleObjectProperty(account)
+    var account by accountProperty
     val predictedCategoryAndConfidence = PredictorModel.categoryPredictor.map { it.predictWithProbability(description.discretizeWords()) }.toBinding()
 
     val predictedCategory get() = predictedCategoryAndConfidence.value?.let { "${it.category}: ${BigDecimal.valueOf(it.probability).setScale(2, RoundingMode.HALF_UP)}" }
@@ -54,6 +56,7 @@ class StagedTransaction(
 
     companion object {
 
+        /*
         fun fromChaseFile(path: String) = Account.allAsMap.map { accounts ->
                 FileReader(path).let { CSVParser(it, CSVFormat.DEFAULT.withHeader()) }.let {
                     val result = it.asSequence().filter { it["Amount"].isNotBlank() }.map {
@@ -75,7 +78,7 @@ class StagedTransaction(
                 val result = it.asSequence().filter { it["Amount"].isNotBlank() }
                         .map {
                             StagedTransaction(
-                                    transactionDate = it["Effective Date"]!!.let { LocalDate.parse(it, DateTimeFormatter.ofPattern("M/d/yyyy")) },
+                                    transactionDate = it["Date"]!!.let { LocalDate.parse(it, DateTimeFormatter.ofPattern("M/d/yyyy")) },
                                     description = it["Description"],
                                     amount = it["Amount"].toCurrency(),
                                     account = accounts[1]!!
@@ -86,7 +89,9 @@ class StagedTransaction(
                 result.toObservable()
             }
         }.flatMapObservable { it }
+        */
     }
+
 
     fun predict() = PredictorModel.predict(this)
 }

@@ -10,8 +10,6 @@ import javafx.collections.FXCollections
 import javafx.scene.control.SelectionMode
 import javafx.scene.input.KeyCode
 import javafx.scene.input.KeyEvent
-import javafx.stage.FileChooser
-import mapNonNulls
 import org.nield.kinance.entity.Category
 import org.nield.kinance.entity.StagedTransaction
 import org.nield.kinance.entity.TaxStatus
@@ -19,7 +17,7 @@ import refreshRequests
 import tornadofx.*
 import java.util.concurrent.TimeUnit
 
-class TransactionImportView : View("Import Transaction") {
+class StagedTransactionView : View("Import Transaction") {
 
     private val backingList = FXCollections.observableArrayList<StagedTransaction>()
     private val importRequests = PublishSubject.create<Observable<StagedTransaction>>()
@@ -34,21 +32,6 @@ class TransactionImportView : View("Import Transaction") {
         top = menubar {
             menu("Import") {
 
-                item("CHASE").actionEvents()
-                        .mapNonNulls {
-                            chooseFile("Choose File", filters = arrayOf(FileChooser.ExtensionFilter("Any", "*.*"))).firstOrNull()?.absolutePath
-                        }.filter { it.isNotBlank() }
-                        .map {
-                            StagedTransaction.fromChaseFile(it)
-                        }.subscribe(importRequests)
-
-
-                item("SWACU").actionEvents().mapNonNulls {
-                    chooseFile("Choose File", filters = arrayOf(FileChooser.ExtensionFilter("Any", "*.*"))).firstOrNull()?.absolutePath
-                }.filter { it.isNotBlank() }
-                .map {
-                    StagedTransaction.fromSwacuFile(it)
-                }.subscribe(importRequests)
             }
 
             menu("Predict") {
@@ -75,7 +58,7 @@ class TransactionImportView : View("Import Transaction") {
             selectionModel.selectionMode = SelectionMode.SINGLE
 
             val categories = FXCollections.observableArrayList<Category>().apply {
-                Category.all.subscribe { add(it) }
+                Category.all.forEach { add(it) }
             }
 
             val taxStatus = TaxStatus.values().toList().observable()
@@ -107,7 +90,7 @@ class TransactionImportView : View("Import Transaction") {
                     .switchMap {
                         typedKeys.scan { x,y -> x + y }
                                 .switchMap { input ->
-                                    Category.all
+                                    Category.all.toObservable()
                                             .filter { it.toString().toUpperCase().startsWith(input.toUpperCase()) }
                                             .take(1)
                                 }.distinctUntilChanged()

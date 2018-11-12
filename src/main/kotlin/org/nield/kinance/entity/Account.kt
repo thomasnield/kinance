@@ -1,50 +1,29 @@
 package org.nield.kinance.entity
 
 import db
-import io.reactivex.rxkotlin.toMap
-import io.reactivex.rxkotlin.toObservable
 import org.nield.rxkotlinjdbc.select
-import switchReplaySingle
-import java.sql.ResultSet
 
-class Account(
+enum class Account(
         val id: Int,
-        val name: String,
+        val accountName: String,
+        val number: String,
         val accountType: AccountType
 ) {
 
-    constructor(rs: ResultSet): this(
-            rs.getInt("ID"),
-            rs.getString("NAME"),
-            rs.getString("ACCOUNT_TYPE").let(AccountType::valueOf)
+    SWACU_CHECKING_7(1),
+    SWACU_CHECKING_8(4),
+    SWACU_SAVINGS_0(3),
+    CHASE_RR(2);
+
+    constructor(record: Record): this(record.id, record.name, record.number, record.accountType)
+
+    constructor(id: Int): this(
+            db.select("SELECT * FROM ACCOUNT WHERE ID = ?").parameter(id).blockingFirst {
+                Record(it.getInt("ID"), it.getString("NAME"), it.getString("NUMBER"), it.getString("ACCOUNT_TYPE").let(AccountType::valueOf))
+            }
     )
+    private class Record(val id: Int, val name: String, val number: String, val accountType: AccountType)
 
-    companion object {
-        val all = db.select("SELECT * FROM ACCOUNT")
-                .toObservable(::Account)
-                .toList()
-                .switchReplaySingle()
-                .flatMapObservable { it.toObservable() }
-
-        val allAsMap get() = all.map { it.id to it }
-                .toMap()
-                .switchReplaySingle()
-    }
-
-    override fun toString() = name
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (javaClass != other?.javaClass) return false
-
-        other as Account
-
-        if (id != other.id) return false
-
-        return true
-    }
-    override fun hashCode(): Int {
-        return id
-    }
 }
 
 enum class AccountType {

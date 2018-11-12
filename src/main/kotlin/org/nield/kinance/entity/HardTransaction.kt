@@ -58,11 +58,7 @@ data class HardTransaction(
                         sequenceOf(categoryId, effFrom, effTo).filterNotNull().forEach { parameter(it) }
             }
         }.let {
-            Singles.zip(Category.allAsMap, Account.allAsMap) { categories, accounts ->
-                it.toObservable {
-                    HardTransaction(it, categories[categoryId]!!, accounts[it.getInt("ACCOUNT_ID")]!!)
-                }
-            }
+             HardTransaction(it, Category.forId(categoryId), Account.forId(it.getInt("ACCOUNT_ID")!!)
         }
     }
 }
